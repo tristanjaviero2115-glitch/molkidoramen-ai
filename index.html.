@@ -1,0 +1,352 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101426">
+<title>Molkidoramen AI</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #101426;
+  color: #f5f6ff;
+}
+
+header {
+  padding: 18px;
+  background: #191f38;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #303853;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  background: linear-gradient(135deg,#7458ff,#19c9d5);
+  width: 43px;
+  height: 43px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+}
+
+h2 {
+  font-size: 17px;
+  margin: 0;
+}
+
+small {
+  color: #a6b0ce;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 15px;
+  background: #7158f5;
+  color: white;
+  font-weight: bold;
+}
+
+button.secondary {
+  background: #29324d;
+}
+
+main {
+  max-width: 850px;
+  margin: auto;
+  padding: 20px;
+}
+
+.welcome {
+  text-align: center;
+  padding: 55px 10px 30px;
+}
+
+.welcome h1 {
+  font-size: 30px;
+  background: linear-gradient(90deg,#9d8aff,#47d9e8);
+  color: transparent;
+  background-clip: text;
+}
+
+.welcome p {
+  color: #a6b0ce;
+}
+
+.chat {
+  min-height: 280px;
+  padding: 16px;
+  background: #191f38;
+  border: 1px solid #303853;
+  border-radius: 16px;
+  margin-bottom: 15px;
+}
+
+.message {
+  padding: 13px;
+  border-radius: 12px;
+  margin: 12px 0;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.ai {
+  background: #252e4b;
+  margin-right: 35px;
+}
+
+.user {
+  background: #5143a8;
+  margin-left: 35px;
+}
+
+.input-area {
+  display: flex;
+  gap: 9px;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 13px;
+  background: #202943;
+  border: 1px solid #3b4766;
+  border-radius: 10px;
+  color: white;
+  font-size: 15px;
+}
+
+#prompt {
+  flex: 1;
+  min-width: 0;
+}
+
+.panel {
+  display: none;
+  margin-top: 18px;
+  background: #191f38;
+  border: 1px solid #303853;
+  border-radius: 15px;
+  padding: 18px;
+}
+
+.panel h3 {
+  margin-top: 0;
+}
+
+.field {
+  margin: 15px 0;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+footer {
+  text-align: center;
+  padding: 30px;
+  color: #8792b0;
+  font-size: 12px;
+}
+
+.status {
+  font-size: 12px;
+  color: #f5ca75;
+  margin-top: 12px;
+}
+
+@media(max-width:480px) {
+  main { padding: 12px; }
+  .welcome { padding-top: 35px; }
+  .input-area { flex-wrap: wrap; }
+  #prompt { width: 100%; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">M</div>
+    <div>
+      <h2 id="brandName">Molkidoramen AI</h2>
+      <small>Independent AI Project</small>
+    </div>
+  </div>
+  <button class="secondary" onclick="toggleSettings()">
+    ⚙ Pengaturan
+  </button>
+</header>
+
+<main>
+
+  <section class="welcome">
+    <h1 id="welcomeName">Molkidoramen AI</h1>
+    <p>Selamat datang. AI milikmu, dengan identitasnya sendiri.</p>
+  </section>
+
+  <section class="chat" id="chat">
+    <div class="message ai">
+      Halo! Saya Molkidoramen AI.
+
+      Antarmuka saya sudah siap. Mesin AI lokal masih dalam tahap pemasangan.
+    </div>
+  </section>
+
+  <div class="input-area">
+    <input id="prompt" placeholder="Tulis pesan..." autocomplete="off">
+    <button onclick="sendMessage()">Kirim</button>
+  </div>
+
+  <div class="status">
+    MODE DEMO — Mesin AI belum terhubung.
+  </div>
+
+  <section class="panel" id="settings">
+    <h3>Pengaturan Molkidoramen AI</h3>
+
+    <div class="field">
+      <label>Nama AI</label>
+      <input id="aiName" value="Molkidoramen AI">
+    </div>
+
+    <div class="field">
+      <label>Kepribadian AI</label>
+      <textarea id="personality" rows="3">Ramah, informatif, dan kreatif.</textarea>
+    </div>
+
+    <div class="field">
+      <label>Bahasa utama</label>
+      <select id="language">
+        <option>Indonesia</option>
+        <option>English</option>
+        <option>Multibahasa</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Kebijakan percakapan</label>
+      <select id="policy">
+        <option value="balanced">Seimbang</option>
+        <option value="strict">Lebih ketat</option>
+        <option value="custom">Kebijakan khusus aplikasi</option>
+      </select>
+    </div>
+
+    <p><small>
+      Pengaturan ini merupakan preferensi aplikasi.
+      Kebijakan model AI dan aturan keselamatan penyedia model
+      tetap berlaku.
+    </small></p>
+
+    <button onclick="saveSettings()">Simpan Pengaturan</button>
+    <button class="secondary" onclick="toggleSettings()">Tutup</button>
+  </section>
+
+</main>
+
+<footer>
+  Molkidoramen AI © 2026<br>
+  Created as an independent AI project.
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function toggleSettings() {
+  const panel = $("settings");
+  panel.style.display =
+    panel.style.display === "block" ? "none" : "block";
+}
+
+function loadSettings() {
+  const saved = localStorage.getItem("molkidoramen-settings");
+
+  if (!saved) return;
+
+  try {
+    const data = JSON.parse(saved);
+
+    $("aiName").value = data.name || "Molkidoramen AI";
+    $("personality").value = data.personality || "";
+    $("language").value = data.language || "Indonesia";
+    $("policy").value = data.policy || "balanced";
+
+    updateIdentity();
+  } catch (error) {
+    console.error("Pengaturan gagal dibaca.");
+  }
+}
+
+function updateIdentity() {
+  const name = $("aiName").value.trim() || "Molkidoramen AI";
+  $("brandName").textContent = name;
+  $("welcomeName").textContent = name;
+}
+
+function saveSettings() {
+  const data = {
+    name: $("aiName").value.trim(),
+    personality: $("personality").value,
+    language: $("language").value,
+    policy: $("policy").value
+  };
+
+  localStorage.setItem(
+    "molkidoramen-settings",
+    JSON.stringify(data)
+  );
+
+  updateIdentity();
+  alert("Pengaturan berhasil disimpan!");
+}
+
+function sendMessage() {
+  const input = $("prompt");
+  const value = input.value.trim();
+
+  if (!value) return;
+
+  const userMessage = document.createElement("div");
+  userMessage.className = "message user";
+  userMessage.textContent = value;
+  $("chat").appendChild(userMessage);
+
+  const reply = document.createElement("div");
+  reply.className = "message ai";
+  reply.textContent =
+    "Pesan diterima. Mesin AI belum terhubung. " +
+    "Fitur kecerdasan akan diaktifkan pada tahap berikutnya.";
+
+  $("chat").appendChild(reply);
+
+  input.value = "";
+  $("chat").scrollTop = $("chat").scrollHeight;
+}
+
+$("prompt").addEventListener("keydown", event => {
+  if (event.key === "Enter") sendMessage();
+});
+
+loadSettings();
+</script>
+
+</body>
+</html>
