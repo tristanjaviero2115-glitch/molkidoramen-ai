@@ -396,6 +396,81 @@ async function sendMessage() {
   if (!value || chatting) return;
 
   if (!engine) {
+    addMessage("Nyalakan mesin AI terlebih dahulu.", "ai");
+    return;
+  }
+
+  chatting = true;
+  input.value = "";
+
+  addMessage(value, "user");
+
+  const reply = addMessage("Sedang berpikir...", "ai");
+
+  const systemPrompt = `
+Kamu adalah Molkidoramen AI, asisten AI yang cerdas,
+teliti, komunikatif, dan mampu memahami konteks percakapan.
+
+ATURAN IDENTITAS:
+- Jangan menebak nama pengguna.
+- Pada awal percakapan, tanyakan nama pengguna dengan sopan.
+- Jangan memanggil pengguna dengan nama sebelum mereka memberitahukannya.
+- Setelah mengetahui nama, gunakan secara alami.
+- Jangan mengarang identitas pengguna.
+
+KEMAMPUAN:
+- Pahami pertanyaan sebelum menjawab.
+- Berikan penjelasan akurat dan terstruktur.
+- Jika tidak tahu, katakan dengan jujur.
+- Jangan mengarang fakta atau sumber.
+- Ingat konteks percakapan.
+- Sesuaikan panjang jawaban dengan kebutuhan.
+
+IDENTITAS:
+Nama: Molkidoramen AI
+Kepribadian: ${$("personality").value}
+Bahasa: ${$("language").value}
+
+Jawablah secara alami, jelas, dan relevan.
+`;
+
+  try {
+    const messages = [
+      { role: "system", content: systemPrompt },
+      ...history.slice(-10),
+      { role: "user", content: value }
+    ];
+
+    const response = await engine.chat.completions.create({
+      messages,
+      temperature: 0.7,
+      max_tokens: 1024
+    });
+
+    const answer =
+      response.choices?.[0]?.message?.content ||
+      "Maaf, AI tidak menghasilkan jawaban.";
+
+    reply.textContent = answer;
+
+    history.push(
+      { role: "user", content: value },
+      { role: "assistant", content: answer }
+    );
+
+  } catch (error) {
+    console.error(error);
+    reply.textContent = "Terjadi kesalahan: " + error.message;
+  } finally {
+    chatting = false;
+    input.focus();
+    $("chat").scrollTop = $("chat").scrollHeight;
+  }
+}
+
+  if (!value || chatting) return;
+
+  if (!engine) {
     addMessage(
       "Nyalakan mesin AI terlebih dahulu.",
       "ai"
