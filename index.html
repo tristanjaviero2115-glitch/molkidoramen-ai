@@ -369,7 +369,7 @@ async function loadAI() {
     );
 
     engine = await webllm.CreateMLCEngine(
-      "Qwen2.5-0.5B-Instruct-q4f16_1-MLC",
+      "Qwen2.5-3B-Instruct-q4f16_1-MLC",
       {
         initProgressCallback: (report) => {
           status.textContent = report.text;
