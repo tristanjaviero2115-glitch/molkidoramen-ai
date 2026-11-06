@@ -272,6 +272,11 @@ footer {
 </footer>
 
 <script>
+let engine = null;
+let loading = false;
+let chatting = false;
+let history = [];
+
 const $ = id => document.getElementById(id);
 
 function toggleSettings() {
@@ -295,12 +300,13 @@ function loadSettings() {
 
     updateIdentity();
   } catch (error) {
-    console.error("Pengaturan gagal dibaca.");
+    console.error("Pengaturan gagal dibaca:", error);
   }
 }
 
 function updateIdentity() {
   const name = $("aiName").value.trim() || "Molkidoramen AI";
+
   $("brandName").textContent = name;
   $("welcomeName").textContent = name;
 }
@@ -322,31 +328,138 @@ function saveSettings() {
   alert("Pengaturan berhasil disimpan!");
 }
 
-function sendMessage() {
+function addMessage(text, type) {
+  const message = document.createElement("div");
+  message.className = "message " + type;
+  message.textContent = text;
+
+  $("chat").appendChild(message);
+  $("chat").scrollTop = $("chat").scrollHeight;
+
+  return message;
+}
+
+async function loadAI() {
+  if (loading || engine) return;
+
+  const status = $("status");
+  const button = $("loadModelBtn");
+
+  if (!navigator.gpu) {
+    status.textContent =
+      "WebGPU tidak tersedia. Coba gunakan Google Chrome versi terbaru.";
+    return;
+  }
+
+  loading = true;
+  button.disabled = true;
+  status.textContent = "Memeriksa perangkat...";
+
+  try {
+    const adapter = await navigator.gpu.requestAdapter();
+
+    if (!adapter) {
+      throw new Error("GPU yang kompatibel tidak ditemukan.");
+    }
+
+    status.textContent = "Mengunduh mesin AI...";
+
+    const webllm = await import(
+      "https://esm.run/@mlc-ai/web-llm"
+    );
+
+    engine = await webllm.CreateMLCEngine(
+      "Qwen2.5-0.5B-Instruct-q4f16_1-MLC",
+      {
+        initProgressCallback: (report) => {
+          status.textContent = report.text;
+        }
+      }
+    );
+
+    status.textContent = "Molkidoramen AI siap digunakan.";
+    button.textContent = "AI Aktif";
+
+  } catch (error) {
+    console.error(error);
+    status.textContent = "Gagal menyalakan AI: " + error.message;
+    button.disabled = false;
+  } finally {
+    loading = false;
+  }
+}
+
+async function sendMessage() {
   const input = $("prompt");
   const value = input.value.trim();
 
-  if (!value) return;
+  if (!value || chatting) return;
 
-  const userMessage = document.createElement("div");
-  userMessage.className = "message user";
-  userMessage.textContent = value;
-  $("chat").appendChild(userMessage);
+  if (!engine) {
+    addMessage(
+      "Nyalakan mesin AI terlebih dahulu.",
+      "ai"
+    );
+    return;
+  }
 
-  const reply = document.createElement("div");
-  reply.className = "message ai";
-  reply.textContent =
-    "Pesan diterima. Mesin AI belum terhubung. " +
-    "Fitur kecerdasan akan diaktifkan pada tahap berikutnya.";
-
-  $("chat").appendChild(reply);
-
+  chatting = true;
   input.value = "";
-  $("chat").scrollTop = $("chat").scrollHeight;
+
+  addMessage(value, "user");
+
+  const reply = addMessage("Sedang berpikir...", "ai");
+
+  const systemPrompt = `
+Kamu adalah ${$("aiName").value || "Molkidoramen AI"}.
+
+Kepribadian:
+${$("personality").value || "Ramah, jelas, dan membantu."}
+
+Bahasa:
+${$("language").value || "Indonesia"}
+
+Jawab dengan jelas dan relevan.
+`;
+
+  try {
+    const messages = [
+      { role: "system", content: systemPrompt },
+      ...history,
+      { role: "user", content: value }
+    ];
+
+    const response = await engine.chat.completions.create({
+      messages,
+      temperature: 0.7,
+      max_tokens: 512
+    });
+
+    const answer =
+      response.choices?.[0]?.message?.content ||
+      "Maaf, AI tidak menghasilkan jawaban.";
+
+    reply.textContent = answer;
+
+    history.push(
+      { role: "user", content: value },
+      { role: "assistant", content: answer }
+    );
+
+  } catch (error) {
+    console.error(error);
+    reply.textContent = "Terjadi kesalahan: " + error.message;
+  } finally {
+    chatting = false;
+    input.focus();
+    $("chat").scrollTop = $("chat").scrollHeight;
+  }
 }
 
 $("prompt").addEventListener("keydown", event => {
-  if (event.key === "Enter") sendMessage();
+  if (event.key === "Enter") {
+    sendMessage();
+  }
 });
 
 loadSettings();
