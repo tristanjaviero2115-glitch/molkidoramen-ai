@@ -215,9 +215,13 @@ footer {
     <button onclick="sendMessage()">Kirim</button>
   </div>
 
-  <div class="status">
-    MODE DEMO — Mesin AI belum terhubung.
-  </div>
+  <button id="loadModelBtn" onclick="loadAI()">
+  Nyalakan Mesin AI
+</button>
+
+<div class="status" id="status">
+  AI belum dinyalakan.
+</div>
 
   <section class="panel" id="settings">
     <h3>Pengaturan Molkidoramen AI</h3>
